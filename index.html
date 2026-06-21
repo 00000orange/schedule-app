@@ -2,14 +2,28 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- ========== 强制重定向：去除 index.html，统一访问路径 ========== -->
+    <!-- ========== 强制重定向到带 index.html 的规范 URL ========== -->
     <script>
         (function() {
             var path = window.location.pathname;
-            // 如果路径以 /index.html 结尾，重定向到目录形式（去掉 index.html）
-            if (path.endsWith('/index.html')) {
-                var newPath = path.slice(0, -10); // 去掉 'index.html'
-                window.location.replace(newPath);
+            // 如果路径不以 /index.html 结尾，则重定向到 /index.html
+            if (!path.endsWith('/index.html')) {
+                // 如果路径以 / 结尾，直接加 index.html
+                var newPath = path;
+                if (newPath.endsWith('/')) {
+                    newPath += 'index.html';
+                } else {
+                    // 如果不以 / 结尾，且不是根路径，则加 /index.html
+                    if (newPath !== '') {
+                        newPath += '/index.html';
+                    } else {
+                        newPath = '/index.html';
+                    }
+                }
+                // 防止死循环（如果 newPath 和 path 相同，则不再跳转）
+                if (newPath !== path) {
+                    window.location.replace(newPath);
+                }
             }
         })();
     </script>
@@ -59,6 +73,11 @@
             background: #FFF2BD; border: none; width: 36px; height: 36px; border-radius: 10px;
             font-weight: bold; cursor: pointer; font-size: 1.1em;
             display: flex; align-items: center; justify-content: center;
+        }
+        /* 调试栏 */
+        .debug-bar {
+            background: #ffc; font-size: 12px; padding: 2px; text-align: center;
+            word-break: break-all; border-bottom: 1px solid #ccc;
         }
         .current-time {
             background: #e9ecef; padding: 0 15px; font-size: 0.85em; text-align: center;
@@ -174,15 +193,19 @@
     </style>
 </head>
 <body>
+    <!-- 调试栏：显示当前 URL -->
+    <div class="debug-bar" id="urlDisplay"></div>
+
     <div class="header">
         <div class="title">📅 日程提醒</div>
         <div class="btn-row">
             <button onclick="openSettings()" title="邮件设置">📧⚙️</button>
             <button onclick="openAddModal()" title="添加日程">➕</button>
+            <!-- 调试按钮：显示 localStorage 数据条数 -->
+            <button onclick="alert('数据条数：'+(localStorage.getItem('schedules_data')?.split('\"id\"').length-1 || 0))">调试</button>
         </div>
     </div>
     <div class="current-time" id="currentTime">
-        <div style="background:#ff0;font-size:12px;padding:2px;word-break:break-all;" id="urlDisplay"></div>
         加载中…
         <span class="watermark">DESIGNED BY CDH</span>
     </div>
@@ -295,7 +318,10 @@
 
     <script>
         emailjs.init('');
-document.getElementById('urlDisplay').textContent = 'URL: ' + window.location.href;
+
+        // 显示当前 URL
+        document.getElementById('urlDisplay').textContent = '当前 URL: ' + window.location.href;
+
         const STORAGE_KEY = 'schedules_data';
         const NOTIFIED_KEY = 'notified_schedule_ids';
         const EMAIL_REMINDER_KEY = 'email_reminders_sent';
