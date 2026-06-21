@@ -2,6 +2,18 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <!-- ========== 强制重定向：去除 index.html，统一访问路径 ========== -->
+    <script>
+        (function() {
+            var path = window.location.pathname;
+            // 如果路径以 /index.html 结尾，重定向到目录形式（去掉 index.html）
+            if (path.endsWith('/index.html')) {
+                var newPath = path.slice(0, -10); // 去掉 'index.html'
+                window.location.replace(newPath);
+            }
+        })();
+    </script>
+    <!-- ============================================================== -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>日程提醒</title>
     <link rel="manifest" href="manifest.json">
