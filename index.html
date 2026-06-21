@@ -295,7 +295,7 @@
 
     <script>
         emailjs.init('');
-
+document.getElementById('urlDisplay').textContent = 'URL: ' + window.location.href;
         const STORAGE_KEY = 'schedules_data';
         const NOTIFIED_KEY = 'notified_schedule_ids';
         const EMAIL_REMINDER_KEY = 'email_reminders_sent';
